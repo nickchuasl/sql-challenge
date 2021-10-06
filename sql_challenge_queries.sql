@@ -9,34 +9,56 @@ CREATE TABLE departments (
 
 --Create employee department table
 CREATE TABLE dept_emp (
-    emp_no VARCHAR   NOT NULL,
-    dept_no VARCHAR   NOT NULL
+    emp_no INT   NOT NULL,
+    dept_no VARCHAR   NOT NULL,
+    CONSTRAINT pk_dept_emp PRIMARY KEY (
+        emp_no,dept_no
+     )
 );
 
 --Create manager department table
 CREATE TABLE dept_manager (
     dept_no VARCHAR   NOT NULL,
-    emp_no VARCHAR   NOT NULL
+    emp_no INT   NOT NULL,
+    CONSTRAINT pk_dept_manager PRIMARY KEY (
+        dept_no,emp_no
+     )
 );
 
 --Create employees data table
 CREATE TABLE employees (
-    emp_no VARCHAR   NOT NULL,
+    emp_no INT   NOT NULL,
     emp_title_id VARCHAR   NOT NULL,
-    birth_date VARCHAR   NOT NULL,
+    birth_date DATE   NOT NULL,
     first_name VARCHAR   NOT NULL,
     last_name VARCHAR   NOT NULL,
     sex VARCHAR   NOT NULL,
-    hire_date VARCHAR   NOT NULL,
+    hire_date DATE   NOT NULL,
     CONSTRAINT pk_employees PRIMARY KEY (
         emp_no
      )
 );
+-- Alter the data type before importing CSV
+ALTER TABLE employees
+ALTER COLUMN birth_date TYPE VARCHAR,
+ALTER COLUMN hire_date TYPE VARCHAR;
+
+
+-- Set the date style to month, date and year
+SET datestyle = mdy;
+
+-- Alter the data type back to date
+ALTER TABLE employees
+ALTER COLUMN birth_date TYPE DATE USING birth_date::DATE,
+ALTER COLUMN hire_date TYPE DATE USING hire_date::DATE;
 
 --Create salaries table
 CREATE TABLE salaries (
-    emp_no VARCHAR   NOT NULL,
-    salary INTEGER   NOT NULL
+    emp_no INT   NOT NULL,
+    salary INT   NOT NULL,
+    CONSTRAINT pk_salaries PRIMARY KEY (
+        emp_no
+     )
 );
 
 --Create titles table
@@ -67,6 +89,7 @@ REFERENCES titles (title_id);
 ALTER TABLE salaries ADD CONSTRAINT fk_salaries_emp_no FOREIGN KEY(emp_no)
 REFERENCES employees (emp_no);
 
+
 --DATA ANALYSIS
 
 -- Task 1: List the following details of each employee: employee number, last name, first name, sex, and salary.
@@ -80,7 +103,7 @@ e.emp_no = s.emp_no;
 --FIND OUT HOW TO DO
 SELECT first_name, last_name, hire_date
 FROM employees
-WHERE RIGHT(hire_date,4) = '1986';
+WHERE date_part('year', hire_date) = 1986;
 
 -- Task 3: List the manager of each department with the following information: department number, department name, the manager's employee number, last name, first name.
 SELECT dept_manager.dept_no, departments.dept_name, dept_manager.emp_no, employees.last_name, employees.first_name
@@ -146,4 +169,7 @@ LEFT JOIN salaries s
 ON e.emp_no = s.emp_no
 LEFT JOIN titles t
 ON e.emp_title_id = t.title_id;
+
+
+
 
